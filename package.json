@@ -1,0 +1,41 @@
+{
+  "name": "stripe-projects-visualizer",
+  "version": "0.1.0",
+  "description": "Visualize the architecture and data flow of Stripe Projects",
+  "type": "module",
+  "bin": {
+    "stripe-projects-viz": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "stripe",
+    "projects",
+    "visualizer",
+    "architecture",
+    "cli"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@openrouter/sdk": "^0.12.13",
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.0"
+  }
+}

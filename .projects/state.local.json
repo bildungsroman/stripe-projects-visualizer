@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "project": {
+    "initializedAt": "2026-05-20T18:25:58.196Z",
+    "merchantDisplayName": null,
+    "merchantId": "acct_1PWm842KBqNfKGYF",
+    "projectId": "project_61UiclxZhoCzw1Nal16QgA5RUFE9Aq1NmbBSub7AWNvc",
+    "projectName": "stripe-projects-visualizer"
+  },
+  "providers": {
+    "openrouter": {
+      "accountRequestId": "fprvcnn_61UWMRw2RO0EgUnME16QgA5RUFE9Aq1NmbBSub7AWHpI",
+      "configuration": {},
+      "linkedAt": "2026-04-16T22:34:36.420Z",
+      "providerId": "prvdr_61URImmFACEuDHEx651IO",
+      "providerName": "OpenRouter",
+      "redirectUrl": null,
+      "requestedAt": "2026-04-16T22:34:36.420Z",
+      "status": "complete"
+    }
+  },
+  "resources": {
+    "openrouter-api": {
+      "configuration": {},
+      "createdAt": "2026-05-20T20:51:41.158Z",
+      "lastRevealedAt": "2026-05-20T20:51:41.559Z",
+      "lastStatus": "complete",
+      "name": "openrouter-api",
+      "providerId": "prvdr_61URImmFACEuDHEx651IO",
+      "providerName": "OpenRouter",
+      "resourceId": "fres_61Uif2w0iOSPi04pg16QgA5RUFE9Aq1NmbBSub7AWQ00",
+      "serviceId": "api"
+    }
+  }
+}

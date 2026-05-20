@@ -1,0 +1,6 @@
+.projects/cache
+.projects/vault
+.env
+.env.local
+node_modules
+dist

@@ -1,0 +1,132 @@
+import { resolve } from "node:path";
+import { readFile, writeFile } from "node:fs/promises";
+import { createInterface } from "node:readline";
+import { join } from "node:path";
+import { parseState } from "../parser/stateParser.js";
+import { collectContext } from "../context/collector.js";
+import { analyzeArchitecture } from "../analyzer/aiAnalyzer.js";
+import { renderTerminal } from "../renderer/terminalRenderer.js";
+import { renderSvg } from "../renderer/svgRenderer.js";
+import { colors } from "../renderer/colors.js";
+
+interface VisualizeOptions {
+  dir?: string;
+  saveSvg?: boolean;
+}
+
+async function loadEnvFile(dir: string): Promise<void> {
+  for (const name of [".env", ".env.local"]) {
+    try {
+      const content = await readFile(join(dir, name), "utf-8");
+      for (const line of content.split("\n")) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+        const eqIndex = trimmed.indexOf("=");
+        if (eqIndex === -1) continue;
+        const key = trimmed.slice(0, eqIndex).trim();
+        const value = trimmed.slice(eqIndex + 1).trim();
+        if (!process.env[key]) {
+          process.env[key] = value;
+        }
+      }
+    } catch {
+      // file doesn't exist, skip
+    }
+  }
+}
+
+export async function visualize(options: VisualizeOptions): Promise<void> {
+  const projectDir = resolve(options.dir ?? process.cwd());
+
+  await loadEnvFile(projectDir);
+
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    console.error(
+      colors.orange("Error: ") +
+        "OPENROUTER_API_KEY is not set.\n\n" +
+        "This tool uses an AI model to analyze your project architecture.\n" +
+        "Set the environment variable or provision OpenRouter:\n\n" +
+        colors.dim("  stripe projects add openrouter/api\n") +
+        colors.dim("  stripe projects env --pull\n") +
+        colors.dim("  source .env\n"),
+    );
+    process.exit(1);
+  }
+
+  console.log(colors.dim("  Reading project state..."));
+  const state = await parseState(projectDir);
+
+  const providerCount = Object.keys(state.providers).length;
+  const resourceCount = Object.keys(state.resources).length;
+
+  if (providerCount === 0) {
+    console.log(
+      colors.yellow("\n  No services provisioned yet.\n") +
+        colors.dim(
+          "  Run `stripe projects add <provider>/<service>` to get started.\n",
+        ),
+    );
+    return;
+  }
+
+  console.log(colors.dim("  Scanning codebase..."));
+  const context = await collectContext(projectDir);
+
+  console.log(
+    colors.dim(
+      `  Found ${context.fileTree.length} source files, ${context.sourceSnippets.length} key files sampled.`,
+    ),
+  );
+
+  console.log(
+    colors.dim("  Analyzing architecture with AI...") +
+      colors.dim(` (${providerCount} providers, ${resourceCount} resources)`),
+  );
+
+  const graph = await analyzeArchitecture(state, context, apiKey);
+
+  console.log("");
+  const diagram = renderTerminal(graph);
+  console.log(diagram);
+
+  if (options.saveSvg) {
+    await saveSvgDiagram(diagram, projectDir);
+  } else {
+    const save = await promptYesNo(
+      colors.dim("  Save diagram as SVG? ") + colors.dim("(y/N) "),
+    );
+    if (save) {
+      await saveSvgDiagram(diagram, projectDir);
+    }
+  }
+}
+
+async function saveSvgDiagram(
+  terminalOutput: string,
+  projectDir: string,
+): Promise<void> {
+  const svg = renderSvg(terminalOutput);
+  const outPath = join(projectDir, ".projects", "architecture.svg");
+  await writeFile(outPath, svg, "utf-8");
+  console.log(
+    colors.dim("\n  Saved to ") +
+      colors.blurple(".projects/architecture.svg") +
+      "\n",
+  );
+}
+
+function promptYesNo(question: string): Promise<boolean> {
+  if (!process.stdin.isTTY) return Promise.resolve(false);
+
+  return new Promise((resolve) => {
+    const rl = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer.trim().toLowerCase() === "y");
+    });
+  });
+}
