@@ -4,15 +4,17 @@ import type { CodeContext } from "../context/types.js";
 import type { ArchitectureGraph } from "./types.js";
 import { buildSystemPrompt, buildUserPrompt } from "./prompt.js";
 
-const MODEL = "anthropic/claude-sonnet-4";
+const DEFAULT_MODEL = "openrouter/auto";
 const MAX_RETRIES = 1;
 
 export async function analyzeArchitecture(
   state: StateJson,
   context: CodeContext,
   apiKey: string,
+  model?: string,
 ): Promise<ArchitectureGraph> {
   const client = new OpenRouter({ apiKey });
+  const selectedModel = model ?? DEFAULT_MODEL;
 
   const systemPrompt = buildSystemPrompt();
   const userPrompt = buildUserPrompt(state, context);
@@ -23,7 +25,7 @@ export async function analyzeArchitecture(
     try {
       const response = await client.chat.send({
         chatRequest: {
-          model: MODEL,
+          model: selectedModel,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },

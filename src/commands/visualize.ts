@@ -11,6 +11,7 @@ import { colors } from "../renderer/colors.js";
 
 interface VisualizeOptions {
   dir?: string;
+  model?: string;
   saveSvg?: boolean;
 }
 
@@ -84,7 +85,7 @@ export async function visualize(options: VisualizeOptions): Promise<void> {
       colors.dim(` (${providerCount} providers, ${resourceCount} resources)`),
   );
 
-  const graph = await analyzeArchitecture(state, context, apiKey);
+  const graph = await analyzeArchitecture(state, context, apiKey, options.model);
 
   console.log("");
   const diagram = renderTerminal(graph);
