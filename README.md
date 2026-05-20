@@ -20,9 +20,9 @@ npx stripe-projects-visualizer visualize
 
 - **Node.js 20+**
 - A Stripe Projects-initialized directory (must contain `.projects/state.json`)
-- `OPENROUTER_API_KEY` environment variable set
+- `OPENROUTER_API_KEY` environment variable (optional — enables AI-powered diagrams)
 
-If you don't have an OpenRouter key, provision one via Stripe Projects:
+Without an API key the tool runs in **basic mode**, producing a simple diagram of your provisioned services from `state.json`. For richer AI-powered diagrams that show data flow, architecture layers, and how your code connects to each service, provision an OpenRouter key:
 
 ```bash
 stripe projects add openrouter/api
@@ -43,17 +43,28 @@ stripe-projects-viz visualize --dir /path/to/project
 stripe-projects-viz visualize --model anthropic/claude-sonnet-4
 stripe-projects-viz visualize -m google/gemini-2.5-flash
 
+# Skip AI and show a simple diagram from state.json
+stripe-projects-viz visualize --basic
+
 # Auto-save SVG without prompting
 stripe-projects-viz visualize --save-svg
 ```
 
-The tool will:
+### AI mode (default)
+
+When `OPENROUTER_API_KEY` is set, the tool will:
 
 1. Read `.projects/state.json` to discover provisioned services
 2. Scan the codebase (file tree, dependencies, README, key source files)
 3. Send the context to an AI model to analyze the architecture
 4. Render a colorful data-flow diagram in the terminal
 5. Optionally save the diagram as `.projects/architecture.svg`
+
+### Basic mode (`--basic`)
+
+Shows a simple diagram of your provisioned services directly from `state.json`, no API key required. Useful for a quick overview or offline use.
+
+![Basic mode output](.projects/basic.png)
 
 ## Development
 

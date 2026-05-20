@@ -16,9 +16,10 @@ program
   .option("-d, --dir <path>", "Path to the project directory (defaults to cwd)")
   .option("-m, --model <model>", "OpenRouter model to use (default: openrouter/auto)")
   .option("--save-svg", "Save SVG diagram without prompting")
+  .option("--basic", "Skip AI analysis and show a simple diagram from state.json")
   .action(async (opts) => {
     try {
-      await visualize({ dir: opts.dir, model: opts.model, saveSvg: opts.saveSvg });
+      await visualize({ dir: opts.dir, model: opts.model, saveSvg: opts.saveSvg, basic: opts.basic });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error(`\n  Error: ${message}\n`);

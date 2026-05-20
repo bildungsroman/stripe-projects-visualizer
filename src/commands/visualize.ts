@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { parseState } from "../parser/stateParser.js";
 import { collectContext } from "../context/collector.js";
 import { analyzeArchitecture } from "../analyzer/aiAnalyzer.js";
+import { buildFallbackGraph } from "../analyzer/fallbackGraph.js";
 import { renderTerminal } from "../renderer/terminalRenderer.js";
 import { renderSvg } from "../renderer/svgRenderer.js";
 import { colors } from "../renderer/colors.js";
@@ -13,6 +14,7 @@ interface VisualizeOptions {
   dir?: string;
   model?: string;
   saveSvg?: boolean;
+  basic?: boolean;
 }
 
 async function loadEnvFile(dir: string): Promise<void> {
@@ -41,20 +43,6 @@ export async function visualize(options: VisualizeOptions): Promise<void> {
 
   await loadEnvFile(projectDir);
 
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    console.error(
-      colors.orange("Error: ") +
-        "OPENROUTER_API_KEY is not set.\n\n" +
-        "This tool uses an AI model to analyze your project architecture.\n" +
-        "Set the environment variable or provision OpenRouter:\n\n" +
-        colors.dim("  stripe projects add openrouter/api\n") +
-        colors.dim("  stripe projects env --pull\n") +
-        colors.dim("  source .env\n"),
-    );
-    process.exit(1);
-  }
-
   console.log(colors.dim("  Reading project state..."));
   const state = await parseState(projectDir);
 
@@ -71,21 +59,38 @@ export async function visualize(options: VisualizeOptions): Promise<void> {
     return;
   }
 
-  console.log(colors.dim("  Scanning codebase..."));
-  const context = await collectContext(projectDir);
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  let graph;
 
-  console.log(
-    colors.dim(
-      `  Found ${context.fileTree.length} source files, ${context.sourceSnippets.length} key files sampled.`,
-    ),
-  );
-
-  console.log(
-    colors.dim("  Analyzing architecture with AI...") +
-      colors.dim(` (${providerCount} providers, ${resourceCount} resources)`),
-  );
-
-  const graph = await analyzeArchitecture(state, context, apiKey, options.model);
+  if (apiKey && !options.basic) {
+    console.log(colors.dim("  Scanning codebase..."));
+    const context = await collectContext(projectDir);
+    console.log(
+      colors.dim(
+        `  Found ${context.fileTree.length} source files, ${context.sourceSnippets.length} key files sampled.`,
+      ),
+    );
+    console.log(
+      colors.dim("  Analyzing architecture with AI...") +
+        colors.dim(
+          ` (${providerCount} providers, ${resourceCount} resources)`,
+        ),
+    );
+    graph = await analyzeArchitecture(state, context, apiKey, options.model);
+  } else {
+    const projectName = projectDir.split("/").pop() ?? "App";
+    if (!options.basic) {
+      console.log(
+        colors.yellow("\n  No OPENROUTER_API_KEY found — using basic mode.\n") +
+          colors.dim(
+            "  For richer AI-powered diagrams, provision OpenRouter:\n",
+          ) +
+          colors.dim("    stripe projects add openrouter/api\n") +
+          colors.dim("    stripe projects env --pull && source .env\n"),
+      );
+    }
+    graph = buildFallbackGraph(state, projectName);
+  }
 
   console.log("");
   const diagram = renderTerminal(graph);
