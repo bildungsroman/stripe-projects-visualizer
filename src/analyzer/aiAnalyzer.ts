@@ -6,6 +6,7 @@ import { buildSystemPrompt, buildUserPrompt } from "./prompt.js";
 
 const DEFAULT_MODEL = "openrouter/auto";
 const MAX_RETRIES = 1;
+const TIMEOUT_MS = 30_000;
 
 export interface AnalysisResult {
   graph: ArchitectureGraph;
@@ -28,17 +29,24 @@ export async function analyzeArchitecture(
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const response = await client.chat.send({
-        chatRequest: {
-          model: selectedModel,
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-          temperature: 0.2,
-          maxTokens: 4096,
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+      const response = await client.chat.send(
+        {
+          chatRequest: {
+            model: selectedModel,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt },
+            ],
+            temperature: 0.2,
+            maxTokens: 4096,
+          },
         },
-      });
+        { fetchOptions: { signal: controller.signal } },
+      );
+      clearTimeout(timer);
 
       const content = response.choices?.[0]?.message?.content;
       if (!content || typeof content !== "string") {
@@ -54,7 +62,13 @@ export async function analyzeArchitecture(
       validateGraph(graph);
       return { graph, resolvedModel: response.model ?? selectedModel };
     } catch (err) {
-      lastError = err instanceof Error ? err : new Error(String(err));
+      if (err instanceof DOMException && err.name === "AbortError") {
+        lastError = new Error(
+          `Request timed out after ${TIMEOUT_MS / 1000}s — try a faster model with --model`,
+        );
+      } else {
+        lastError = err instanceof Error ? err : new Error(String(err));
+      }
       if (attempt < MAX_RETRIES) continue;
     }
   }
