@@ -76,7 +76,9 @@ export async function visualize(options: VisualizeOptions): Promise<void> {
           ` (${providerCount} providers, ${resourceCount} resources)`,
         ),
     );
-    graph = await analyzeArchitecture(state, context, apiKey, options.model);
+    const result = await analyzeArchitecture(state, context, apiKey, options.model);
+    graph = result.graph;
+    console.log(colors.dim(`  Model: ${result.resolvedModel}`));
   } else {
     const projectName = projectDir.split("/").pop() ?? "App";
     if (!options.basic) {

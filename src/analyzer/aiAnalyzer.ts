@@ -7,12 +7,17 @@ import { buildSystemPrompt, buildUserPrompt } from "./prompt.js";
 const DEFAULT_MODEL = "openrouter/auto";
 const MAX_RETRIES = 1;
 
+export interface AnalysisResult {
+  graph: ArchitectureGraph;
+  resolvedModel: string;
+}
+
 export async function analyzeArchitecture(
   state: StateJson,
   context: CodeContext,
   apiKey: string,
   model?: string,
-): Promise<ArchitectureGraph> {
+): Promise<AnalysisResult> {
   const client = new OpenRouter({ apiKey });
   const selectedModel = model ?? DEFAULT_MODEL;
 
@@ -47,7 +52,7 @@ export async function analyzeArchitecture(
 
       const graph = JSON.parse(cleaned) as ArchitectureGraph;
       validateGraph(graph);
-      return graph;
+      return { graph, resolvedModel: response.model ?? selectedModel };
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
       if (attempt < MAX_RETRIES) continue;
