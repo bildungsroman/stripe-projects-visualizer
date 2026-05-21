@@ -23,6 +23,7 @@ program
     console.log("    -d, --dir <path>     " + chalk.dim("Project directory (defaults to cwd)"));
     console.log("    -m, --model <model>  " + chalk.dim("OpenRouter model (default: openrouter/auto)"));
     console.log("    --save-svg           " + chalk.dim("Save SVG without prompting"));
+    console.log("    --free               " + chalk.dim("Use a free OpenRouter model (no credits needed)"));
     console.log("    --basic              " + chalk.dim("Skip AI, diagram from state.json only"));
     console.log("");
     console.log(chalk.yellow("  Examples:"));
@@ -44,9 +45,10 @@ program
   .option("-m, --model <model>", "OpenRouter model to use (default: openrouter/auto)")
   .option("--save-svg", "Save SVG diagram without prompting")
   .option("--basic", "Skip AI analysis and show a simple diagram from state.json")
+  .option("--free", "Use a free OpenRouter model (no credits needed)")
   .action(async (opts) => {
     try {
-      await visualize({ dir: opts.dir, model: opts.model, saveSvg: opts.saveSvg, basic: opts.basic });
+      await visualize({ dir: opts.dir, model: opts.model, saveSvg: opts.saveSvg, basic: opts.basic, free: opts.free });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error(`\n  Error: ${message}\n`);

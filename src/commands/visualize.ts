@@ -4,7 +4,7 @@ import { createInterface } from "node:readline";
 import { join } from "node:path";
 import { parseState } from "../parser/stateParser.js";
 import { collectContext } from "../context/collector.js";
-import { analyzeArchitecture } from "../analyzer/aiAnalyzer.js";
+import { analyzeArchitecture, FREE_MODEL } from "../analyzer/aiAnalyzer.js";
 import { buildFallbackGraph } from "../analyzer/fallbackGraph.js";
 import { renderTerminal } from "../renderer/terminalRenderer.js";
 import { renderSvg } from "../renderer/svgRenderer.js";
@@ -15,6 +15,7 @@ interface VisualizeOptions {
   model?: string;
   saveSvg?: boolean;
   basic?: boolean;
+  free?: boolean;
 }
 
 async function loadEnvFile(dir: string): Promise<void> {
@@ -91,7 +92,8 @@ export async function visualize(options: VisualizeOptions): Promise<void> {
           ` (${providerCount} providers, ${resourceCount} resources)`,
         ),
     );
-    const result = await analyzeArchitecture(state, context, apiKey, options.model);
+    const model = options.free ? FREE_MODEL : options.model;
+    const result = await analyzeArchitecture(state, context, apiKey, model);
     graph = result.graph;
     console.log(colors.dim(`  Model: ${result.resolvedModel}`));
   } else {

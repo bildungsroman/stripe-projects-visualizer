@@ -43,6 +43,9 @@ stripe-projects-viz visualize --dir /path/to/project
 stripe-projects-viz visualize --model anthropic/claude-sonnet-4
 stripe-projects-viz visualize -m google/gemini-2.5-flash
 
+# Use a free model (no OpenRouter credits needed)
+stripe-projects-viz visualize --free
+
 # Skip AI and show a simple diagram from state.json
 stripe-projects-viz visualize --basic
 
@@ -59,6 +62,10 @@ When `OPENROUTER_API_KEY` is set, the tool will:
 3. Send the context to an AI model to analyze the architecture
 4. Render a colorful data-flow diagram in the terminal
 5. Optionally save the diagram as `.projects/architecture.svg`
+
+### Free mode (`--free`)
+
+Uses OpenRouter's free model tier — still AI-powered, no credits required. Just needs an `OPENROUTER_API_KEY`.
 
 ### Basic mode (`--basic`)
 

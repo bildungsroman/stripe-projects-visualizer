@@ -5,6 +5,7 @@ import type { ArchitectureGraph } from "./types.js";
 import { buildSystemPrompt, buildUserPrompt } from "./prompt.js";
 
 const DEFAULT_MODEL = "openrouter/auto";
+export const FREE_MODEL = "openrouter/auto:free";
 const MAX_RETRIES = 1;
 const TIMEOUT_MS = 30_000;
 
