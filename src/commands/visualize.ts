@@ -44,6 +44,15 @@ async function loadEnvFile(dir: string): Promise<void> {
   }
 }
 
+/**
+ * Main entry point for the `visualize` command. Like Stackery but for Stripe Projects.
+ *
+ * Reads `.projects/state.json` from the target directory, then either
+ * sends codebase context to an AI model (default) or builds a simple
+ * graph from state alone (`--basic` / missing API key). The resulting
+ * architecture graph is rendered as a colored terminal diagram and
+ * optionally exported as SVG.
+ */
 export async function visualize(options: VisualizeOptions): Promise<void> {
   const projectDir = resolve(options.dir ?? process.cwd());
 

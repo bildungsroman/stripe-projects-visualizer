@@ -18,7 +18,7 @@ npx stripe-projects-visualizer visualize
 
 ## Prerequisites
 
-- **Node.js 20+**
+- **Node.js 24+**
 - A Stripe Projects-initialized directory (must contain `.projects/state.json`)
 - `OPENROUTER_API_KEY` environment variable (optional — enables AI-powered diagrams)
 
