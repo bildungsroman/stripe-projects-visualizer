@@ -1,6 +1,6 @@
 {
   "name": "stripe-projects-visualizer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Visualize the architecture and data flow of Stripe Projects",
   "type": "module",
   "bin": {
