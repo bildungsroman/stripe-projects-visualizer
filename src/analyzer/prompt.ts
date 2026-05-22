@@ -48,6 +48,12 @@ Your output MUST be valid JSON conforming exactly to this schema:
 - "service": third-party service from state.json providers
 - "external": external dependency not in state.json
 
+## Security — NEVER expose sensitive data
+- Do NOT include API keys, tokens, secrets, passwords, or env var values in any output
+- Do NOT include PII (names, emails, addresses, phone numbers) from source files or config
+- Node labels and descriptions must be generic (e.g. "OpenRouter" not "sk-or-v1-abc...")
+- Edge labels describe data flow patterns, never actual data values
+
 ## Edge labels — keep them SHORT and specific
 - 3-6 words max per label
 - Name what actually flows: "SSE transcript fixes", "chat completion (streaming)"
