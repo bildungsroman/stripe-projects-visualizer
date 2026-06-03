@@ -30,6 +30,12 @@ stripe projects env --pull
 source .env
 ```
 
+If you already have an OpenRouter key from another project, you can use it directly when invoking the visualizer in any project:
+
+```bash
+OPENROUTER_API_KEY=sk-<your-key> npx stripe-projects-visualizer visualize
+```
+
 ## Usage
 
 ```bash
